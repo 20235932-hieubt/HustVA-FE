@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo nhúng HUST Assistant</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: #263046;
+        background: #f5f6fa;
+        font-family: Arial, sans-serif;
+      }
+      header {
+        padding: 24px max(24px, calc((100vw - 1040px) / 2));
+        background: #a91b2b;
+        color: white;
+        font-weight: 700;
+      }
+      main {
+        max-width: 1040px;
+        margin: 64px auto;
+        padding: 0 24px;
+      }
+      .label {
+        color: #a91b2b;
+        font-size: 13px;
+        letter-spacing: 2px;
+      }
+      h1 {
+        max-width: 650px;
+        font-size: clamp(32px, 5vw, 52px);
+        line-height: 1.15;
+      }
+      p {
+        max-width: 620px;
+        line-height: 1.7;
+        color: #596579;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-top: 36px;
+      }
+      article {
+        background: white;
+        border: 1px solid #e3e6ed;
+        border-radius: 16px;
+        padding: 24px;
+      }
+      h2 {
+        margin-top: 0;
+        font-size: 20px;
+      }
+      pre {
+        margin-top: 28px;
+        padding: 20px;
+        background: #202b3d;
+        color: #fff;
+        border-radius: 12px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        line-height: 1.7;
+      }
+      a {
+        color: #a91b2b;
+      }
+      /* Deliberately different host styles: widget CSS stays isolated. */
+      button {
+        background: blue;
+        font-family: Georgia, serif;
+      }
+      iframe {
+        border: 10px solid green;
+      }
+    </style>
+  </head>
+  <body>
+    <header>HUST · CỔNG THÔNG TIN SINH VIÊN — DEMO</header>
+    <main>
+      <p class="label">WIDGET NHÚNG</p>
+      <h1>Một trợ lý, tích hợp trên nhiều website.</h1>
+      <p>
+        Bấm nút robot ở góc dưới bên phải để mở HUST Assistant. Thử mở rộng, đóng rồi mở lại; phần
+        còn lại của trang vẫn có thể tương tác bình thường.
+      </p>
+      <div class="cards">
+        <article>
+          <h2>Quy chế đào tạo</h2>
+          <p>Hỏi trợ lý về các quy định học tập và đào tạo.</p>
+          <a href="#integration">Xem cách tích hợp →</a>
+        </article>
+        <article>
+          <h2>Hỗ trợ sinh viên</h2>
+          <p>Giao diện chatbot được tải riêng và không phụ thuộc CSS của trang này.</p>
+          <a href="/" target="_blank" rel="noopener">Mở giao diện độc lập →</a>
+        </article>
+      </div>
+      <section id="integration">
+        <h2 style="margin-top: 40px">Chỉ cần thêm một script</h2>
+        <pre><code id="snippet"></code></pre>
+        <p>
+          Trang demo sử dụng chính script bên dưới. Gửi tin nhắn cần backend hoạt động; không có câu
+          trả lời giả lập.
+        </p>
+      </section>
+    </main>
+    <script>
+      var widgetOrigin = window.location.origin;
+      try {
+        var configured = new URL(new URLSearchParams(window.location.search).get('widgetOrigin'));
+        if (['http:', 'https:'].includes(configured.protocol)) widgetOrigin = configured.origin;
+      } catch {
+        /* Default to the current frontend. */
+      }
+      document.getElementById('snippet').textContent =
+        '<script src="' +
+        widgetOrigin +
+        '/widget.js" data-position="bottom-right" defer><' +
+        '/script>';
+      var widget = document.createElement('script');
+      widget.src = widgetOrigin + '/widget.js';
+      widget.setAttribute('data-position', 'bottom-right');
+      document.body.appendChild(widget);
+    </script>
+  </body>
+</html>
