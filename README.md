@@ -137,3 +137,49 @@ sẽ được hỏi lại. Tắt tool trong management có hiệu lực ở lư�
 Các lượt HUST trả `retrievalMode: hust_api`. LLM nhận câu hỏi hiện tại đã qua bước
 giả danh; kết quả API không gửi sang Gemini. Chat cần cấu hình model để chọn tool.
 Cần hỏi đầy đủ trong một câu; chưa hỗ trợ nối tiếp kiểu “công ty đó”.
+
+## Đăng nhập demo để tra cứu điểm
+
+Trang chat trực tiếp (`/chat` hoặc widget cùng site) có form username/mật khẩu
+demo. Dùng tài khoản do nhóm cấp; không nhập mật khẩu Microsoft/HUST. Không có
+đăng ký công khai. Khách vẫn hỏi thông tin công khai được.
+
+Backend cần `DEMO_AUTH_ENABLED=true`, file mapping tài khoản–MSSV hợp lệ,
+`CHAT_GRADES_ENABLED=true` và hai tool điểm được bật trong management. Xem phần
+“Đăng nhập demo” trong [backend README](../be/README.md). Frontend chỉ cần
+`NEXT_PUBLIC_API_URL` trỏ tới backend `/api/v1`; không đưa tài khoản, MSSV mapping,
+HUST token hoặc secret vào biến NEXT_PUBLIC.
+
+Ví dụ local: frontend `http://localhost:3000`, API
+`http://localhost:4000/api/v1`; backend WEB_ORIGIN là `http://localhost:3000` và
+API_ORIGIN là `http://localhost:4000`. Giữ cùng hostname `localhost` ở cả hai bên.
+Production phải HTTPS và frontend/API cùng site; bản demo không hỗ trợ đăng nhập
+dựa trên cookie bên thứ ba trong iframe website khác.
+
+Auth API dùng `credentials: include`; cookie HttpOnly do browser quản lý và
+không đọc bằng JavaScript. Authorization bearer của conversation được giữ riêng.
+Login/logout đổi giao diện tài khoản và xóa nội dung đang hiển thị; request cũ bị
+abort, phản hồi muộn bị loại. Capability/index lưu trong sessionStorage theo
+accountId hoặc guest, không theo MSSV; không đọc lại storage legacy tự động.
+Điểm phản hồi chỉ nằm trong RAM. Refresh chỉ khôi phục thông báo history, không
+khôi phục bảng điểm từ backend.
+
+Phiên được kiểm tra lại khi focus, mỗi 30 giây và trước thao tác chat. Hết hạn
+hoặc đổi tài khoản sẽ thay phiên hiển thị. Các tab đồng bộ sự kiện login/logout
+bằng BroadcastChannel khi browser hỗ trợ, kèm kiểm tra lại `/me`. Backend vẫn
+quyết định quyền truy cập. Chat embed gửi `credentials: omit`, chỉ dùng chế độ
+công khai; nút mở trang chat trực tiếp phục vụ đăng nhập xem điểm. Không truyền
+cookie/token qua postMessage.
+
+Checklist kiểm tra browser bằng tài khoản/MSSV giả lập và mock upstream:
+
+1. Guest hỏi thông tin công khai; yêu cầu điểm nhắc đăng nhập.
+2. Login A, hỏi “xem điểm của tôi” không kèm MSSV; hỏi MSSV khác bị chặn.
+3. Refresh vẫn đúng tài khoản nhưng không phục hồi điểm trực tiếp từ history.
+4. Logout rồi login B không hiện hội thoại/điểm A. Thử logout ở tab khác.
+5. Cho upstream trả chậm, logout trong khi chờ: không nhận điểm cũ sau đổi phiên.
+6. Kiểm tra iframe chỉ có chat công khai và nút mở trang chat trực tiếp.
+
+Test/fixture/runner chỉ giữ tại `../kiem-thu/fe/demo-auth`, không commit/push.
+Các test transport/storage dùng mock fetch; vẫn cần kiểm tra đầy đủ browser trên
+môi trường triển khai và các tài khoản đã được cấp phép trước buổi demo dữ liệu thật.
