@@ -142,6 +142,8 @@ Cần hỏi đầy đủ trong một câu; chưa hỗ trợ nối tiếp kiểu 
 
 Trang chứa chatbot có khu vực đăng nhập demo bên ngoài box chat. Sau đăng nhập,
 header box chat hiển thị MSSV từ mapping tài khoản do backend trả về.
+Đăng nhập/đăng xuất thực hiện trên trang chính. Trang `/chat` giữ bố cục toàn
+màn hình ban đầu; khách có liên kết về khu vực đăng nhập trên trang chính.
 Dùng tài khoản do nhóm cấp; không nhập mật khẩu Microsoft/HUST. Không có
 đăng ký công khai. Khách vẫn hỏi thông tin công khai được.
 
@@ -169,7 +171,7 @@ Phiên được kiểm tra lại khi focus, mỗi 30 giây và trước thao tá
 hoặc đổi tài khoản sẽ thay phiên hiển thị. Các tab đồng bộ sự kiện login/logout
 bằng BroadcastChannel khi browser hỗ trợ, kèm kiểm tra lại `/me`. Backend vẫn
 quyết định quyền truy cập. Chat embed gửi `credentials: omit`, chỉ dùng chế độ
-công khai; nút mở trang chat trực tiếp phục vụ đăng nhập xem điểm. Không truyền
+công khai; nút mở rộng có sẵn mở trang chat trực tiếp. Không truyền
 cookie/token qua postMessage.
 
 Checklist kiểm tra browser bằng tài khoản/MSSV giả lập và mock upstream:

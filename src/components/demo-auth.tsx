@@ -153,16 +153,18 @@ export function DemoAuthBoundary({
     </div>
   );
   return (
-    <div className={`demo-page${fullScreen ? ' demo-page-fullscreen' : ''}`}>
-      <header className="demo-page-header" aria-label="Tài khoản trên trang">
-        {ready ? (
-          panel
-        ) : (
-          <div className="demo-auth" role="status">
-            Đang kiểm tra phiên demo…
-          </div>
-        )}
-      </header>
+    <div className="demo-page">
+      {!fullScreen && (
+        <header className="demo-page-header" aria-label="Tài khoản trên trang">
+          {ready ? (
+            panel
+          ) : (
+            <div className="demo-auth" role="status">
+              Đang kiểm tra phiên demo…
+            </div>
+          )}
+        </header>
+      )}
       {ready && children(identity(user), user, verify)}
     </div>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { DemoAuthBoundary } from './demo-auth';
 import {
   useEffect,
@@ -486,6 +487,11 @@ function ChatSurface({
                 <span className="chat-brand-label">
                   <h1>HUST ASSISTANT</h1>
                   {studentId && <span className="chat-student-id">MSSV: {studentId}</span>}
+                  {!studentId && !embedded && fullScreen && (
+                    <Link className="chat-student-id" href="/#demo-login">
+                      Đăng nhập trên trang chính
+                    </Link>
+                  )}
                 </span>
               </span>
               <div className="chat-actions">
@@ -512,11 +518,6 @@ function ChatSurface({
                 </button>
               </div>
             </header>
-            {embedded && (
-              <div className="demo-auth">
-                <button onClick={openFullScreen}>Mở trang chat để đăng nhập và xem điểm</button>
-              </div>
-            )}
             <div
               className="chat-messages"
               role="log"
