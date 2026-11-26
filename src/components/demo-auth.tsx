@@ -15,15 +15,17 @@ export function DemoAuthBoundary({
   const [password, setPassword] = useState('');
   const channel = useRef<BroadcastChannel | null>(null);
   const version = useRef(0);
+  const mutating = useRef(false);
   const identity = (u: DemoUser | null) => (u ? `${u.accountId}:${u.expiresAt}` : 'guest');
   const invalidate = () => {
     version.current++;
   };
   async function refresh() {
+    if (mutating.current) return;
     const revision = ++version.current;
     try {
       const next = await demoMe();
-      if (revision !== version.current) return;
+      if (revision !== version.current || mutating.current) return;
       setUser(next);
       setError('');
     } catch {
@@ -69,7 +71,13 @@ export function DemoAuthBoundary({
   }, [user]);
   async function verify() {
     const expected = identity(user);
-    const next = await demoMe();
+    let next: DemoUser | null;
+    try {
+      next = await demoMe();
+    } catch (error) {
+      setUser(null);
+      throw error;
+    }
     if (identity(next) !== expected) {
       setUser(next);
       throw new Error('Phiên đăng nhập đã thay đổi. Vui lòng gửi lại câu hỏi.');
@@ -78,6 +86,7 @@ export function DemoAuthBoundary({
   async function change(event?: FormEvent) {
     event?.preventDefault();
     if (busy) return;
+    mutating.current = true;
     setBusy(true);
     setError('');
     version.current++;
@@ -92,6 +101,8 @@ export function DemoAuthBoundary({
       setUser(null);
       setError(e instanceof Error ? e.message : 'Không thể đăng nhập demo.');
     } finally {
+      mutating.current = false;
+      version.current++;
       setPassword('');
       setBusy(false);
       setReady(true);
