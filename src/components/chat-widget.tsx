@@ -1,6 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { DemoAuthBoundary } from './demo-auth';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type FormEvent,
+  type KeyboardEvent,
+} from 'react';
 import {
   ChatApiError,
   createConversation,
@@ -96,12 +104,24 @@ interface ChatWidgetProps {
   initiallyOpen?: boolean;
   fullScreen?: boolean;
 }
-export function ChatWidget({
+export function ChatWidget(props: ChatWidgetProps) {
+  if (props.embedded) return <ChatSurface {...props} />;
+  return (
+    <DemoAuthBoundary>
+      {(scope, panel, verify) => (
+        <ChatSurface key={scope} {...props} authPanel={panel} verifyAuth={verify} />
+      )}
+    </DemoAuthBoundary>
+  );
+}
+function ChatSurface({
   embedded = false,
   parentOrigin,
   initiallyOpen = true,
   fullScreen = false,
-}: ChatWidgetProps) {
+  authPanel,
+  verifyAuth,
+}: ChatWidgetProps & { authPanel?: ReactNode; verifyAuth?: () => Promise<void> }) {
   const [open, setOpen] = useState(initiallyOpen);
   const expanded = fullScreen;
   const [historyOpen, setHistoryOpen] = useState(fullScreen);
@@ -134,7 +154,9 @@ export function ChatWidget({
       locked.current = true;
       setBusy(true);
       try {
-        const { messages } = await loadHistory(current);
+        const { messages } = await loadHistory(current, 0, {
+          credentials: embedded ? 'omit' : 'include',
+        });
         if (!cancelled) {
           setRecords([...messages].reverse());
           setHasOlder(messages.length === 50);
@@ -243,7 +265,9 @@ export function ChatWidget({
     setNotice('');
     try {
       const target = targetSession;
-      const { messages } = await loadHistory(target, older ? records.length : 0);
+      const { messages } = await loadHistory(target, older ? records.length : 0, {
+        credentials: embedded ? 'omit' : 'include',
+      });
       session.current = target;
       setActiveId(target.conversationId);
       try {
@@ -284,10 +308,11 @@ export function ChatWidget({
     setNotice('');
     const requestId = crypto.randomUUID();
     try {
+      await verifyAuth?.();
       session.current ??= readSession();
       restoreIndex();
       if (!session.current || isExpired(session.current)) {
-        session.current = await createConversation();
+        session.current = await createConversation({ credentials: embedded ? 'omit' : 'include' });
         setRecords([]);
         setHasOlder(false);
         try {
@@ -303,7 +328,9 @@ export function ChatWidget({
         { requestId, message, status: 'pending', result: null },
       ]);
       setText('');
-      const result = await sendMessage(session.current, message, requestId);
+      const result = await sendMessage(session.current, message, requestId, {
+        credentials: embedded ? 'omit' : 'include',
+      });
       remember(session.current, message, 1);
       setRecords((current) =>
         current.map((record) =>
@@ -434,6 +461,12 @@ export function ChatWidget({
                 </button>
               </div>
             </header>
+            {authPanel}
+            {embedded && (
+              <div className="demo-auth">
+                <button onClick={openFullScreen}>M? trang chat ?? ??ng nh?p v? xem ?i?m</button>
+              </div>
+            )}
             <div
               className="chat-messages"
               role="log"

@@ -19,6 +19,7 @@ export class ChatApiError extends Error {
   constructor(
     public status: number,
     message: string,
+    public code?: string,
   ) {
     super(message);
   }
@@ -29,8 +30,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     response = await fetch(`${apiUrl}/chat${path}`, {
       ...options,
       cache: 'no-store',
+      credentials: options.credentials ?? 'include',
       headers: { 'Content-Type': 'application/json', ...options.headers },
-      signal: AbortSignal.timeout(90_000),
+      signal: options.signal
+        ? AbortSignal.any([options.signal, AbortSignal.timeout(90_000)])
+        : AbortSignal.timeout(90_000),
     });
   } catch {
     throw new Error('Không thể kết nối máy chủ. Vui lòng kiểm tra kết nối và thử lại.');
@@ -40,19 +44,25 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     throw new ChatApiError(response.status, data.error?.message ?? 'Không thể xử lý yêu cầu.');
   return data as T;
 }
-export function createConversation() {
-  return request<Conversation>('/conversations', { method: 'POST', body: '{}' });
+export function createConversation(options: RequestInit = {}) {
+  return request<Conversation>('/conversations', { ...options, method: 'POST', body: '{}' });
 }
-export function sendMessage(session: Conversation, message: string, requestId: string) {
+export function sendMessage(
+  session: Conversation,
+  message: string,
+  requestId: string,
+  options: RequestInit = {},
+) {
   return request<ChatResult>(`/conversations/${session.conversationId}/messages`, {
+    ...options,
     method: 'POST',
     headers: { Authorization: `Bearer ${session.token}` },
     body: JSON.stringify({ message, requestId }),
   });
 }
-export function loadHistory(session: Conversation, offset = 0) {
+export function loadHistory(session: Conversation, offset = 0, options: RequestInit = {}) {
   return request<{ messages: ChatRecord[] }>(
     `/conversations/${session.conversationId}/messages?limit=50&offset=${offset}`,
-    { headers: { Authorization: `Bearer ${session.token}` } },
+    { ...options, headers: { Authorization: `Bearer ${session.token}` } },
   );
 }

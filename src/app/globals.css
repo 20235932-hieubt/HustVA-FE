@@ -585,3 +585,44 @@ body:has(.embed-surface) {
     height: 48px;
   }
 }
+.demo-auth {
+  padding: 12px 18px;
+  border-bottom: 1px solid #e4e4e7;
+  background: #fafafa;
+  font-size: 13px;
+}
+.demo-auth-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+  margin: 8px 0;
+}
+.demo-auth-row label {
+  display: grid;
+  gap: 4px;
+  flex: 1 1 130px;
+}
+.demo-auth input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #a1a1aa;
+  border-radius: 6px;
+  padding: 7px;
+  background: white;
+  color: #18181b;
+}
+.demo-auth button {
+  border-radius: 6px;
+  background: #b7192b;
+  color: white;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.demo-auth button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.demo-auth small {
+  color: #52525b;
+}
