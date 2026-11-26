@@ -169,6 +169,36 @@ function ChatSurface({
   const bottom = useRef<HTMLDivElement>(null);
   const firstFocus = useRef(true);
   const conversationIndex = useRef<SavedConversation[]>([]);
+  const panel = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const viewport = window.visualViewport;
+    const resize = () => {
+      panel.current?.style.setProperty(
+        '--chat-viewport-height',
+        `${viewport?.height ?? window.innerHeight}px`,
+      );
+      panel.current?.style.setProperty('--chat-viewport-top', `${viewport?.offsetTop ?? 0}px`);
+    };
+    resize();
+    viewport?.addEventListener('resize', resize);
+    viewport?.addEventListener('scroll', resize);
+    window.addEventListener('resize', resize);
+    return () => {
+      viewport?.removeEventListener('resize', resize);
+      viewport?.removeEventListener('scroll', resize);
+      window.removeEventListener('resize', resize);
+    };
+  }, [open]);
+  useEffect(() => {
+    const narrow = window.matchMedia('(max-width: 650px)');
+    const closeDrawer = () => {
+      if (narrow.matches) setHistoryOpen(false);
+    };
+    void Promise.resolve().then(closeDrawer);
+    narrow.addEventListener('change', closeDrawer);
+    return () => narrow.removeEventListener('change', closeDrawer);
+  }, []);
   useEffect(() => {
     if (!fullScreen) return;
     let cancelled = false;
@@ -320,7 +350,7 @@ function ChatSurface({
       }
       if (selected) {
         setText('');
-        if (!fullScreen && window.innerWidth < 600) setHistoryOpen(false);
+        if (window.innerWidth <= 650) setHistoryOpen(false);
       }
       const chronological = [...messages].reverse();
       setRecords((current) => (older ? [...chronological, ...current] : chronological));
@@ -421,13 +451,24 @@ function ChatSurface({
       )}
       {open && (
         <section
+          ref={panel}
           id="hust-chat"
           className={`chat-panel${expanded ? ' chat-panel-expanded' : ''}${historyOpen ? ' chat-panel-with-history' : ''}`}
           aria-label="HUST Assistant"
           onKeyDown={(event) => {
-            if (event.key === 'Escape') setOpen(false);
+            if (event.key === 'Escape') {
+              if (historyOpen) setHistoryOpen(false);
+              else setOpen(false);
+            }
           }}
         >
+          {historyOpen && (
+            <button
+              className="chat-history-backdrop"
+              aria-label="Đóng bảng lịch sử"
+              onClick={() => setHistoryOpen(false)}
+            />
+          )}
           {historyOpen && (
             <aside className="chat-history" id="chat-history" aria-label="Lịch sử trò chuyện">
               <div className="chat-history-header">

@@ -187,3 +187,12 @@ Checklist kiểm tra browser bằng tài khoản/MSSV giả lập và mock upstr
 Test/fixture/runner chỉ giữ tại `../kiem-thu/fe/demo-auth`, không commit/push.
 Các test transport/storage dùng mock fetch; vẫn cần kiểm tra đầy đủ browser trên
 môi trường triển khai và các tài khoản đã được cấp phép trước buổi demo dữ liệu thật.
+
+## Responsive chatbot
+
+Bố cục desktop giữ theo ảnh mẫu. Khi box rộng tối đa 650px, lịch sử mở dạng
+ngăn trượt phủ trên chat, có nền phủ để chạm đóng và hỗ trợ Escape. Box rộng
+tối đa 400px dùng header/ô nhập gọn hơn và cỡ chữ nhập 16px. Trên điện thoại,
+chat trực tiếp phủ vùng nhìn thấy; form đăng nhập ngoài box xếp thành một cột.
+VisualViewport cập nhật chiều cao/vị trí khi bàn phím mở hoặc viewport thay đổi;
+iframe loader cũng theo dõi resize/scroll. Footer có khoảng đệm safe area.

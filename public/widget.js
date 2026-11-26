@@ -43,7 +43,7 @@
     var viewport = window.visualViewport;
     var width = viewport ? viewport.width : window.innerWidth;
     var height = viewport ? viewport.height : window.innerHeight;
-    var gap = (open && expanded) || width <= 480 ? 0 : 12;
+    var gap = (open && expanded) || width <= 599 ? 0 : 12;
     style(
       'width',
       Math.max(
@@ -61,7 +61,9 @@
         (viewport ? Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop) : 0) +
         'px',
     );
-    style(left ? 'left' : 'right', gap + 'px');
+    var offsetLeft = viewport ? viewport.offsetLeft : 0;
+    var offsetRight = viewport ? Math.max(0, window.innerWidth - width - offsetLeft) : 0;
+    style(left ? 'left' : 'right', gap + (left ? offsetLeft : offsetRight) + 'px');
     style(left ? 'right' : 'left', 'auto');
   }
   window.addEventListener('message', function (event) {
@@ -83,7 +85,10 @@
     frame.contentWindow.postMessage({ type: 'hust:request-state' }, widgetOrigin);
   });
   window.addEventListener('resize', resize);
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', resize);
+    window.visualViewport.addEventListener('scroll', resize);
+  }
   resize();
   function mount() {
     if (!document.getElementById(frame.id)) document.body.appendChild(frame);
