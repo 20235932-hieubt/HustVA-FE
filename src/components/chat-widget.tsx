@@ -7,7 +7,6 @@ import {
   useCallback,
   useRef,
   useState,
-  type ReactNode,
   type FormEvent,
   type KeyboardEvent,
 } from 'react';
@@ -109,13 +108,13 @@ interface ChatWidgetProps {
 export function ChatWidget(props: ChatWidgetProps) {
   if (props.embedded) return <ChatSurface {...props} />;
   return (
-    <DemoAuthBoundary>
-      {(scope, panel, verify) => (
+    <DemoAuthBoundary fullScreen={props.fullScreen}>
+      {(scope, user, verify) => (
         <ChatSurface
           key={scope}
           {...props}
           authScope={scope === 'guest' ? 'guest' : `account-${scope.split(':')[0]}`}
-          authPanel={panel}
+          studentId={user?.studentId}
           verifyAuth={verify}
         />
       )}
@@ -128,11 +127,11 @@ function ChatSurface({
   initiallyOpen = true,
   fullScreen = false,
   authScope = 'guest',
-  authPanel,
+  studentId,
   verifyAuth,
 }: ChatWidgetProps & {
   authScope?: string;
-  authPanel?: ReactNode;
+  studentId?: string;
   verifyAuth?: () => Promise<void>;
 }) {
   const storageKey = scopedSessionKey(authScope);
@@ -484,7 +483,10 @@ function ChatSurface({
             <header className="chat-header">
               <span className="chat-brand">
                 <BotIcon />
-                <h1>HUST ASSISTANT</h1>
+                <span className="chat-brand-label">
+                  <h1>HUST ASSISTANT</h1>
+                  {studentId && <span className="chat-student-id">MSSV: {studentId}</span>}
+                </span>
               </span>
               <div className="chat-actions">
                 <button
@@ -510,7 +512,6 @@ function ChatSurface({
                 </button>
               </div>
             </header>
-            {authPanel}
             {embedded && (
               <div className="demo-auth">
                 <button onClick={openFullScreen}>Mở trang chat để đăng nhập và xem điểm</button>

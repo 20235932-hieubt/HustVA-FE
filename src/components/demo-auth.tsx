@@ -4,8 +4,10 @@ import { demoMe, demoLogin, demoLogout, type DemoUser } from '@/lib/demo-auth';
 
 export function DemoAuthBoundary({
   children,
+  fullScreen = false,
 }: {
-  children: (scope: string, panel: ReactNode, verify: () => Promise<void>) => ReactNode;
+  children: (scope: string, user: DemoUser | null, verify: () => Promise<void>) => ReactNode;
+  fullScreen?: boolean;
 }) {
   const [user, setUser] = useState<DemoUser | null>(null);
   const [ready, setReady] = useState(false);
@@ -109,7 +111,7 @@ export function DemoAuthBoundary({
     }
   }
   const panel = (
-    <div className="demo-auth" aria-label="Đăng nhập demo">
+    <div id="demo-login" className="demo-auth demo-page-account" aria-label="Đăng nhập demo">
       <strong>Tài khoản demo</strong>
       {user ? (
         <div className="demo-auth-row">
@@ -150,11 +152,18 @@ export function DemoAuthBoundary({
       {error && <p role="status">{error}</p>}
     </div>
   );
-  if (!ready)
-    return (
-      <div className="demo-auth" role="status">
-        Đang kiểm tra phiên demo…
-      </div>
-    );
-  return children(identity(user), panel, verify);
+  return (
+    <div className={`demo-page${fullScreen ? ' demo-page-fullscreen' : ''}`}>
+      <header className="demo-page-header" aria-label="Tài khoản trên trang">
+        {ready ? (
+          panel
+        ) : (
+          <div className="demo-auth" role="status">
+            Đang kiểm tra phiên demo…
+          </div>
+        )}
+      </header>
+      {ready && children(identity(user), user, verify)}
+    </div>
+  );
 }

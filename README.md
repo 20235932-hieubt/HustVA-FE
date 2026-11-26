@@ -140,8 +140,9 @@ Cần hỏi đầy đủ trong một câu; chưa hỗ trợ nối tiếp kiểu 
 
 ## Đăng nhập demo để tra cứu điểm
 
-Trang chat trực tiếp (`/chat` hoặc widget cùng site) có form username/mật khẩu
-demo. Dùng tài khoản do nhóm cấp; không nhập mật khẩu Microsoft/HUST. Không có
+Trang chứa chatbot có khu vực đăng nhập demo bên ngoài box chat. Sau đăng nhập,
+header box chat hiển thị MSSV từ mapping tài khoản do backend trả về.
+Dùng tài khoản do nhóm cấp; không nhập mật khẩu Microsoft/HUST. Không có
 đăng ký công khai. Khách vẫn hỏi thông tin công khai được.
 
 Backend cần `DEMO_AUTH_ENABLED=true`, file mapping tài khoản–MSSV hợp lệ,

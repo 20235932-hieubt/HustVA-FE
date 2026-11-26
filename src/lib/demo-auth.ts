@@ -1,5 +1,6 @@
 export interface DemoUser {
   accountId: string;
+  studentId: string;
   displayName: string;
   expiresAt: string;
   mode: 'demo';

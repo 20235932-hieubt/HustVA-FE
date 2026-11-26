@@ -626,3 +626,41 @@ body:has(.embed-surface) {
 .demo-auth small {
   color: #52525b;
 }
+
+.demo-page-header {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.demo-page-account {
+  max-width: 960px;
+  margin: 0 auto;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+}
+.demo-page-header {
+  padding: 16px;
+  background: #fff;
+}
+.demo-page-fullscreen {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+.demo-page-fullscreen .chat-panel-expanded {
+  position: relative;
+  inset: auto;
+  flex: 1;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+.chat-brand-label {
+  display: grid;
+  gap: 4px;
+}
+.chat-student-id {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
