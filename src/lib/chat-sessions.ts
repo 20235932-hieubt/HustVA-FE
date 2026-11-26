@@ -5,10 +5,10 @@ export interface SavedConversation extends Conversation {
   createdAt: string;
   messageCount: number;
 }
-const key = 'hust-assistant-conversations';
-export function readConversations(): SavedConversation[] {
+const storageKey = (scope: string) => `hust-assistant-conversations:v2:${scope}`;
+export function readConversations(scope = 'guest'): SavedConversation[] {
   try {
-    const values: unknown = JSON.parse(sessionStorage.getItem(key) ?? '[]');
+    const values: unknown = JSON.parse(sessionStorage.getItem(storageKey(scope)) ?? '[]');
     if (!Array.isArray(values)) return [];
     return values.filter(
       (item): item is SavedConversation =>
@@ -29,7 +29,8 @@ export function saveConversation(
   session: Conversation,
   title: string,
   additionalMessages: number,
-  current: SavedConversation[] = readConversations(),
+  current: SavedConversation[] = [],
+  scope = 'guest',
 ): SavedConversation[] {
   const previous = current.find((item) => item.conversationId === session.conversationId);
   const next = [
@@ -42,7 +43,7 @@ export function saveConversation(
     ...current.filter((item) => item.conversationId !== session.conversationId),
   ];
   try {
-    sessionStorage.setItem(key, JSON.stringify(next));
+    sessionStorage.setItem(storageKey(scope), JSON.stringify(next));
   } catch {
     /* Keep in-memory history. */
   }

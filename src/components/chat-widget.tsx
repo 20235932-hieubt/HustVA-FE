@@ -3,6 +3,8 @@
 import { DemoAuthBoundary } from './demo-auth';
 import {
   useEffect,
+  useEffectEvent,
+  useCallback,
   useRef,
   useState,
   type ReactNode,
@@ -76,13 +78,13 @@ function Icon({ name }: { name: 'history' | 'expand' | 'close' | 'attach' | 'sen
     </svg>
   );
 }
-const storageKey = 'hust-assistant-session';
+const scopedSessionKey = (scope: string) => `hust-assistant-session:v2:${scope}`;
 function isExpired(value: Conversation) {
   return Date.parse(value.expiresAt) <= Date.now();
 }
-function readSession(): Conversation | null {
+function readSession(scope: string): Conversation | null {
   try {
-    const value = JSON.parse(sessionStorage.getItem(storageKey) ?? 'null');
+    const value = JSON.parse(sessionStorage.getItem(scopedSessionKey(scope)) ?? 'null');
     if (value?.conversationId && value?.token && Date.parse(value.expiresAt) > Date.now())
       return value;
   } catch {
@@ -109,7 +111,13 @@ export function ChatWidget(props: ChatWidgetProps) {
   return (
     <DemoAuthBoundary>
       {(scope, panel, verify) => (
-        <ChatSurface key={scope} {...props} authPanel={panel} verifyAuth={verify} />
+        <ChatSurface
+          key={scope}
+          {...props}
+          authScope={scope === 'guest' ? 'guest' : `account-${scope.split(':')[0]}`}
+          authPanel={panel}
+          verifyAuth={verify}
+        />
       )}
     </DemoAuthBoundary>
   );
@@ -119,9 +127,32 @@ function ChatSurface({
   parentOrigin,
   initiallyOpen = true,
   fullScreen = false,
+  authScope = 'guest',
   authPanel,
   verifyAuth,
-}: ChatWidgetProps & { authPanel?: ReactNode; verifyAuth?: () => Promise<void> }) {
+}: ChatWidgetProps & {
+  authScope?: string;
+  authPanel?: ReactNode;
+  verifyAuth?: () => Promise<void>;
+}) {
+  const storageKey = scopedSessionKey(authScope);
+  const lifetime = useRef<AbortController | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    lifetime.current = controller;
+    return () => controller.abort();
+  }, []);
+  const verifyIdentity = useEffectEvent(async () => {
+    await verifyAuth?.();
+  });
+  const requestOptions = useCallback(
+    () => ({
+      signal: lifetime.current?.signal,
+      credentials: embedded ? ('omit' as const) : ('include' as const),
+    }),
+    [embedded],
+  );
+  const checkActive = () => lifetime.current?.signal.throwIfAborted();
   const [open, setOpen] = useState(initiallyOpen);
   const expanded = fullScreen;
   const [historyOpen, setHistoryOpen] = useState(fullScreen);
@@ -145,25 +176,31 @@ function ChatSurface({
     async function restore() {
       await Promise.resolve();
       if (cancelled) return;
-      conversationIndex.current = readConversations();
+      conversationIndex.current = readConversations(authScope);
       setConversations(conversationIndex.current);
-      const current = readSession();
+      const current = readSession(authScope);
       if (!current) return;
       session.current = current;
       setActiveId(current.conversationId);
       locked.current = true;
       setBusy(true);
       try {
-        const { messages } = await loadHistory(current, 0, {
-          credentials: embedded ? 'omit' : 'include',
-        });
+        await verifyIdentity();
+        checkActive();
+        const { messages } = await loadHistory(current, 0, requestOptions());
         if (!cancelled) {
+          checkActive();
           setRecords([...messages].reverse());
           setHasOlder(messages.length === 50);
         }
       } catch (error) {
-        if (!cancelled)
+        if (!cancelled) {
+          if (error instanceof ChatApiError && error.status === 401) {
+            setRecords([]);
+            void verifyIdentity().catch(() => undefined);
+          }
           setNotice(error instanceof Error ? error.message : 'Không thể tải lịch sử.');
+        }
       } finally {
         if (!cancelled) {
           locked.current = false;
@@ -175,7 +212,7 @@ function ChatSurface({
     return () => {
       cancelled = true;
     };
-  }, [fullScreen]);
+  }, [fullScreen, embedded, authScope, requestOptions]);
   function openFullScreen() {
     // The same-origin new tab receives a copy of this tab's sessionStorage.
     // Detach its opener immediately; session tokens never enter the URL.
@@ -209,18 +246,24 @@ function ChatSurface({
     return () => window.removeEventListener('message', receive);
   }, [embedded, parentOrigin, open, expanded, historyOpen]);
   function remember(current: Conversation, title: string, count: number) {
-    conversationIndex.current = saveConversation(current, title, count, conversationIndex.current);
+    conversationIndex.current = saveConversation(
+      current,
+      title,
+      count,
+      conversationIndex.current,
+      authScope,
+    );
     setConversations(conversationIndex.current);
   }
   function restoreIndex() {
-    if (!conversationIndex.current.length) conversationIndex.current = readConversations();
+    if (!conversationIndex.current.length) conversationIndex.current = readConversations(authScope);
     setConversations(conversationIndex.current);
   }
   function toggleHistory() {
     setHistoryOpen(!historyOpen);
     if (!historyOpen) {
       restoreIndex();
-      session.current ??= readSession();
+      session.current ??= readSession(authScope);
       if (session.current) {
         setActiveId(session.current.conversationId);
         if (!records.length) void history();
@@ -255,7 +298,7 @@ function ChatSurface({
   }
   async function history(older = false, selected?: SavedConversation) {
     if (locked.current) return;
-    const targetSession = selected ?? session.current ?? readSession();
+    const targetSession = selected ?? session.current ?? readSession(authScope);
     if (!targetSession) {
       setNotice('Chưa có lịch sử trò chuyện trong phiên này.');
       return;
@@ -264,10 +307,11 @@ function ChatSurface({
     setBusy(true);
     setNotice('');
     try {
+      await verifyAuth?.();
+      checkActive();
       const target = targetSession;
-      const { messages } = await loadHistory(target, older ? records.length : 0, {
-        credentials: embedded ? 'omit' : 'include',
-      });
+      const { messages } = await loadHistory(target, older ? records.length : 0, requestOptions());
+      checkActive();
       session.current = target;
       setActiveId(target.conversationId);
       try {
@@ -293,6 +337,7 @@ function ChatSurface({
       }
       if (!messages.length) setNotice('Chưa có lịch sử trò chuyện trong phiên này.');
     } catch (error) {
+      if (lifetime.current?.signal.aborted) return;
       handleError(error);
     } finally {
       locked.current = false;
@@ -309,10 +354,12 @@ function ChatSurface({
     const requestId = crypto.randomUUID();
     try {
       await verifyAuth?.();
-      session.current ??= readSession();
+      checkActive();
+      session.current ??= readSession(authScope);
       restoreIndex();
       if (!session.current || isExpired(session.current)) {
-        session.current = await createConversation({ credentials: embedded ? 'omit' : 'include' });
+        session.current = await createConversation(requestOptions());
+        checkActive();
         setRecords([]);
         setHasOlder(false);
         try {
@@ -328,9 +375,10 @@ function ChatSurface({
         { requestId, message, status: 'pending', result: null },
       ]);
       setText('');
-      const result = await sendMessage(session.current, message, requestId, {
-        credentials: embedded ? 'omit' : 'include',
-      });
+      const result = await sendMessage(session.current, message, requestId, requestOptions());
+      checkActive();
+      await verifyAuth?.();
+      checkActive();
       remember(session.current, message, 1);
       setRecords((current) =>
         current.map((record) =>
@@ -338,6 +386,7 @@ function ChatSurface({
         ),
       );
     } catch (error) {
+      if (lifetime.current?.signal.aborted) return;
       setRecords((current) =>
         current.map((record) =>
           record.requestId === requestId ? { ...record, status: 'failed' } : record,
@@ -464,7 +513,7 @@ function ChatSurface({
             {authPanel}
             {embedded && (
               <div className="demo-auth">
-                <button onClick={openFullScreen}>M? trang chat ?? ??ng nh?p v? xem ?i?m</button>
+                <button onClick={openFullScreen}>Mở trang chat để đăng nhập và xem điểm</button>
               </div>
             )}
             <div

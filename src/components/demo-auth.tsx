@@ -16,6 +16,9 @@ export function DemoAuthBoundary({
   const channel = useRef<BroadcastChannel | null>(null);
   const version = useRef(0);
   const identity = (u: DemoUser | null) => (u ? `${u.accountId}:${u.expiresAt}` : 'guest');
+  const invalidate = () => {
+    version.current++;
+  };
   async function refresh() {
     const revision = ++version.current;
     try {
@@ -47,7 +50,7 @@ export function DemoAuthBoundary({
       };
     }
     return () => {
-      version.current++;
+      invalidate();
       clearInterval(timer);
       window.removeEventListener('focus', focus);
       channel.current?.close();
