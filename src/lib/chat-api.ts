@@ -41,7 +41,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
   const data = await response.json();
   if (!response.ok)
-    throw new ChatApiError(response.status, data.error?.message ?? 'Không thể xử lý yêu cầu.');
+    throw new ChatApiError(
+      response.status,
+      data.error?.message ?? 'Không thể xử lý yêu cầu.',
+      data.error?.code,
+    );
   return data as T;
 }
 export function createConversation(options: RequestInit = {}) {
