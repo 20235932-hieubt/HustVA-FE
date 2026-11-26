@@ -34,8 +34,8 @@ a:focus-visible {
   bottom: 24px;
   display: flex;
   flex-direction: row;
-  width: 368px;
-  height: 590px;
+  width: 460px;
+  height: 750px;
   max-width: 100vw;
   max-height: calc(100dvh - 48px);
   overflow: hidden;
@@ -57,8 +57,8 @@ a:focus-visible {
   min-height: 0;
 }
 .chat-panel-with-history:not(.chat-panel-expanded) {
-  width: min(618px, calc(100vw - 48px));
-  height: 590px;
+  width: min(730px, calc(100vw - 48px));
+  height: 750px;
   border-radius: 20px 20px 0 0;
 }
 .chat-history {
@@ -76,7 +76,7 @@ a:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  height: 65px;
+  height: 80px;
   flex-shrink: 0;
   padding: 0 20px;
   background: #ab1b2b;
@@ -125,7 +125,7 @@ a:focus-visible {
 .chat-history-month {
   margin: 0;
   padding: 0 18px 4px;
-  color: #a1a8b6;
+  color: #cfd4df;
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 700;
@@ -151,7 +151,7 @@ a:focus-visible {
   font-size: 15px;
 }
 .chat-history-item small {
-  color: #a1a8b6;
+  color: #cfd4df;
   font-size: 12px;
 }
 .chat-history-item.is-active {
@@ -205,6 +205,9 @@ a:focus-visible {
 .chat-panel-expanded .chat-footer {
   padding: 0 20px 12px;
 }
+.chat-panel-with-history .chat-footer {
+  padding: 0 20px 12px;
+}
 .chat-panel-expanded .chat-composer {
   min-height: 70px;
   border-radius: 25px;
@@ -225,8 +228,8 @@ a:focus-visible {
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  height: 65px;
-  padding: 0 4px 0 10px;
+  height: 80px;
+  padding: 0 4px 0 14px;
   background: #ab1b2b;
   color: #fff;
 }
@@ -237,12 +240,12 @@ a:focus-visible {
   white-space: nowrap;
 }
 .chat-brand > svg {
-  width: 30px;
-  height: 34px;
+  width: 36px;
+  height: 40px;
 }
 .chat-brand h1 {
   margin: 0;
-  font-size: 17px;
+  font-size: 21px;
   line-height: 1;
   font-weight: 700;
 }
@@ -269,7 +272,7 @@ a:focus-visible {
   background: #ffffff20;
 }
 .chat-actions button:disabled {
-  opacity: 0.45;
+  opacity: 1;
 }
 .chat-actions svg {
   width: 19px;
@@ -331,15 +334,15 @@ a:focus-visible {
 }
 .chat-footer {
   flex-shrink: 0;
-  padding: 0 4px 5px 10px;
+  padding: 0 5px 5px 13px;
 }
 .chat-composer {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 56px;
-  padding: 8px 10px 8px 17px;
-  border-radius: 21px;
+  gap: 12px;
+  min-height: 70px;
+  padding: 8px 14px 8px 24px;
+  border-radius: 25px;
   background: #f0f0f4;
 }
 .chat-composer:focus-within {
@@ -359,8 +362,8 @@ a:focus-visible {
   color: #929292;
 }
 .chat-composer .chat-attach svg {
-  width: 21px;
-  height: 23px;
+  width: 24px;
+  height: 26px;
 }
 .chat-composer textarea {
   flex: 1;
@@ -373,8 +376,8 @@ a:focus-visible {
   outline: none;
   background: transparent;
   color: #333;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 20px;
+  line-height: 26px;
   field-sizing: content;
 }
 .chat-composer textarea::placeholder {
@@ -395,8 +398,8 @@ a:focus-visible {
   margin: 7px 0 0;
   color: #909090;
   text-align: center;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 14px;
+  line-height: 21px;
 }
 .chat-launcher {
   position: fixed;
@@ -487,7 +490,7 @@ a:focus-visible {
   .chat-panel-expanded {
     inset: auto 0 0;
     width: 100%;
-    height: 590px;
+    height: 750px;
     max-height: 100dvh;
     box-shadow: none;
   }
@@ -641,13 +644,4 @@ body:has(.embed-surface) {
 .demo-page-header {
   padding: 16px;
   background: #fff;
-}
-.chat-brand-label {
-  display: grid;
-  gap: 4px;
-}
-.chat-student-id {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
 }

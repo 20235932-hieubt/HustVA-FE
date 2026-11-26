@@ -141,9 +141,10 @@ Cần hỏi đầy đủ trong một câu; chưa hỗ trợ nối tiếp kiểu 
 ## Đăng nhập demo để tra cứu điểm
 
 Trang chứa chatbot có khu vực đăng nhập demo bên ngoài box chat. Sau đăng nhập,
-header box chat hiển thị MSSV từ mapping tài khoản do backend trả về.
+Góc phải thanh “LỊCH SỬ” hiển thị MSSV từ mapping tài khoản do backend trả về,
+đúng vị trí trong ảnh thiết kế. Thanh tiêu đề chính chỉ có logo, tên bot và các icon.
 Đăng nhập/đăng xuất thực hiện trên trang chính. Trang `/chat` giữ bố cục toàn
-màn hình ban đầu; khách có liên kết về khu vực đăng nhập trên trang chính.
+màn hình theo ảnh mẫu; khách đăng nhập từ khu vực tài khoản trên trang chính.
 Dùng tài khoản do nhóm cấp; không nhập mật khẩu Microsoft/HUST. Không có
 đăng ký công khai. Khách vẫn hỏi thông tin công khai được.
 

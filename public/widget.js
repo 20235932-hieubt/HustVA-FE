@@ -48,12 +48,12 @@
       'width',
       Math.max(
         0,
-        Math.min(open ? (expanded ? width : historyOpen ? 642 : 392) : 114, width - gap * 2),
+        Math.min(open ? (expanded ? width : historyOpen ? 754 : 484) : 114, width - gap * 2),
       ) + 'px',
     );
     style(
       'height',
-      Math.max(0, Math.min(open ? (expanded ? height : 614) : 114, height - gap * 2)) + 'px',
+      Math.max(0, Math.min(open ? (expanded ? height : 774) : 114, height - gap * 2)) + 'px',
     );
     style(
       'bottom',

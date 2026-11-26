@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { DemoAuthBoundary } from './demo-auth';
 import {
   useEffect,
@@ -433,7 +432,9 @@ function ChatSurface({
             <aside className="chat-history" id="chat-history" aria-label="Lịch sử trò chuyện">
               <div className="chat-history-header">
                 <h2>LỊCH SỬ</h2>
-                <span>Phiên hiện tại</span>
+                <span aria-label={studentId ? 'Mã số sinh viên' : 'Trạng thái tài khoản'}>
+                  {studentId ?? 'Khách'}
+                </span>
               </div>
               <div className="chat-history-list">
                 <button className="chat-new-conversation" disabled={busy} onClick={newConversation}>
@@ -469,36 +470,25 @@ function ChatSurface({
                   </div>
                 ))}
               </div>
-              {!fullScreen && (
-                <button
-                  className="chat-history-collapse"
-                  aria-label="Thu gọn lịch sử"
-                  onClick={() => setHistoryOpen(false)}
-                >
-                  ‹
-                </button>
-              )}
+              <button
+                className="chat-history-collapse"
+                aria-label="Thu gọn lịch sử"
+                onClick={() => setHistoryOpen(false)}
+              >
+                ‹
+              </button>
             </aside>
           )}
           <div className="chat-main">
             <header className="chat-header">
               <span className="chat-brand">
                 <BotIcon />
-                <span className="chat-brand-label">
-                  <h1>HUST ASSISTANT</h1>
-                  {studentId && <span className="chat-student-id">MSSV: {studentId}</span>}
-                  {!studentId && !embedded && fullScreen && (
-                    <Link className="chat-student-id" href="/#demo-login">
-                      Đăng nhập trên trang chính
-                    </Link>
-                  )}
-                </span>
+                <h1>HUST ASSISTANT</h1>
               </span>
               <div className="chat-actions">
                 <button
                   aria-label="Xem lịch sử trò chuyện"
                   title="Lịch sử trò chuyện"
-                  disabled={fullScreen}
                   aria-expanded={historyOpen}
                   aria-controls="chat-history"
                   onClick={toggleHistory}
