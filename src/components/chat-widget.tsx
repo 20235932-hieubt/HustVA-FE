@@ -1,6 +1,7 @@
 'use client';
 
 import { DemoAuthBoundary } from './demo-auth';
+import { ChatMarkdown } from './chat-markdown';
 import {
   useEffect,
   useEffectEvent,
@@ -574,9 +575,9 @@ function ChatSurface({
                   {record.result && (
                     <div className="chat-bubble chat-bubble-assistant">
                       <span className="sr-only">HUST Assistant: </span>
-                      {record.result.answer}
+                      <ChatMarkdown>{record.result.answer}</ChatMarkdown>
                       {!!record.result.citations?.length && (
-                        <ul className="chat-sources">
+                        <ol className="chat-sources" aria-label="Nguồn tham khảo">
                           {record.result.citations.map((citation, index) => (
                             <li key={`${citation.evidenceId}-${index}`}>
                               <a
@@ -589,7 +590,7 @@ function ChatSurface({
                               </a>
                             </li>
                           ))}
-                        </ul>
+                        </ol>
                       )}
                       {record.result.warnings?.map((warning) => (
                         <p className="chat-warning" key={warning}>

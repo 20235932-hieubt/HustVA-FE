@@ -190,6 +190,12 @@ môi trường triển khai và các tài khoản đã được cấp phép trư
 
 ## Responsive chatbot
 
+Phản hồi bot được render bằng `react-markdown` và `remark-gfm`, hỗ trợ đoạn văn,
+tiêu đề, in đậm, danh sách và bảng cuộn ngang. Chỉ render Markdown của bot;
+nội dung người dùng giữ dạng text. Không render HTML thô hoặc ảnh từ phản hồi;
+link chỉ nhận HTTP(S), mở tab mới với noopener/noreferrer. Nguồn từ citations
+hiển thị thành danh sách đánh số riêng, khớp các số trích dẫn trong câu trả lời.
+
 Bố cục desktop giữ theo ảnh mẫu. Khi box rộng tối đa 650px, lịch sử mở dạng
 ngăn trượt phủ trên chat, có nền phủ để chạm đóng và hỗ trợ Escape. Box rộng
 tối đa 400px dùng header/ô nhập gọn hơn và cỡ chữ nhập 16px. Trên điện thoại,
